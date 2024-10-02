@@ -1,18 +1,18 @@
 function Get-RiskLevels {
     param (
         [Parameter(Mandatory=$true)]
-        [pscustomobject]$HtmlObject  # Your PSCustomObject with the HTML table
+        [pscustomobject]$HtmlObject  # Your PSCustomObject with the HTML table content
     )
 
-    # Convert the HTML content (directly from the PSCustomObject) to a DOM object
-    $htmlContent = $HtmlObject  # The HTML is directly in the object
+    # Use Invoke-WebRequest to parse the HTML content
+    $htmlParsed = [System.Net.WebUtility]::HtmlDecode($HtmlObject)
 
-    # Load the HTML content using the HTML DOM parser
-    $htmlParsed = New-Object -ComObject "HTMLFILE"
-    $htmlParsed.IHTMLDocument2_write($htmlContent)
+    # Load the HTML into an XML document for easier parsing
+    $htmlDoc = New-Object -ComObject "HTMLFile"
+    $htmlDoc.IHTMLDocument2_write($htmlParsed)
 
-    # Select all rows from the table (assuming there's a single table)
-    $rows = $htmlParsed.getElementsByTagName("tr")
+    # Select all rows from the table
+    $rows = $htmlDoc.getElementsByTagName("tr")
 
     $riskLevels = @()
 
@@ -23,7 +23,7 @@ function Get-RiskLevels {
         foreach ($cell in $cells) {
             # Check if the cell contains "Low Risk", "Medium Risk", or "High Risk"
             if ($cell.innerText -match 'Low Risk|Medium Risk|High Risk') {
-                # Add the matched risk level to the array
+                # Add this row to the riskLevels array
                 $riskLevels += $cell.innerText
             }
         }
@@ -31,12 +31,6 @@ function Get-RiskLevels {
 
     return $riskLevels
 }
-
-# Example usage
-$htmlObject = "<html><table><tr><th>RISK LEVEL</th><td>Low Risk</td></tr><tr><td>High Risk</td></tr></table></html>"
-
-$riskLevels = Get-RiskLevels -HtmlObject $htmlObject
-$riskLevels
 
 <#
 
