@@ -29,7 +29,8 @@ function Get-RiskLevels {
             if ($header.innerText -eq "RISK LEVEL") {
                 # If a matching header is found, get the corresponding data in <td>
                 foreach ($cell in $cells) {
-                    if ($cell.innerText -match 'Low Risk|Medium Risk|High Risk') {
+                    # Match "None", "LOW_RISK", "MEDIUM_RISK", or "HIGH_RISK"
+                    if ($cell.innerText -match 'None|LOW_RISK|MEDIUM_RISK|HIGH_RISK') {
                         # Add the matched risk level to the array
                         $riskLevels += $cell.innerText.Trim()
                     }
@@ -48,9 +49,9 @@ function Get-RiskLevels {
 $htmlObject = @"
 <html>
     <table>
-        <tr><th>RISK LEVEL</th><td>Low Risk</td></tr>
-        <tr><th>RISK LEVEL</th><td>Medium Risk</td></tr>
-        <tr><th>RISK LEVEL</th><td>High Risk</td></tr>
+        <tr><th>RISK LEVEL</th><td>LOW_RISK</td></tr>
+        <tr><th>RISK LEVEL</th><td>MEDIUM_RISK</td></tr>
+        <tr><th>RISK LEVEL</th><td>HIGH_RISK</td></tr>
         <tr><th>RISK LEVEL</th><td>None</td></tr>
     </table>
 </html>
