@@ -68,3 +68,30 @@ function Get-RiskLevels {
 
     return $riskLevels
 }
+
+<#
+<table>
+<tr>
+<th>Friendly Name</th> 
+<th>Issuer</th> 
+<th>Server</th>
+<th>Thumbprint</th>
+<th>Subject Name</th> 
+<th>Issue Date</th>
+<th>Expiration Date</th> 
+<th>Risk Level</th>
+<th>Expires in (Days)</th>
+</tr>
+<tr class="even-table-color">
+<td>QACA92</td>
+<td>CN=Wells Fargo Enterprise certification Authori</td>
+<td>MSGQVZLTM901</td>
+<td>1EFSECA8CFF5FB0F4469686C129D28224314ADB4</td> 
+<td>CN-QACA92, OU-EMC, 0-Wells Fargo, C-US</td> 
+<td>08/12/2024 05:33:01</td>
+<td>08/12/2026 05:33:01</td>
+<td>None</td>
+<td>679</td> 
+</tr> 
+</table>
+#>
