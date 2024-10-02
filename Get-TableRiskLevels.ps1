@@ -26,13 +26,14 @@ function Get-RiskLevels {
     # Debug: Print all header values
     Write-Host "Headers found:"
     foreach ($header in $headers) {
-        Write-Host $header.innerText.Trim()
+        Write-Host "Header: '" $header.innerText.Trim() "'"
     }
 
     # Check headers for "Risk Level"
     foreach ($header in $headers) {
         if ($header.innerText.Trim().ToLower() -eq "risk level") {
             $riskLevelIndex = [Array]::IndexOf($headers, $header)
+            Write-Host "Risk Level header found at index: $riskLevelIndex"
             break
         }
     }
