@@ -13,30 +13,42 @@ function Get-RiskLevels {
     while ($ie.Busy) { Start-Sleep -Milliseconds 100 }
     $ie.Document.Write($HtmlContent)
 
-    # Get all table rows (tr elements)
-    $rows = $ie.Document.getElementsByTagName("tr")
+    # Get the table element (assuming there's only one table)
+    $table = $ie.Document.getElementsByTagName("table") | Select-Object -First 1
 
     $riskLevels = @()
+    $riskLevelIndex = -1
 
-    # Iterate through each row
-    foreach ($row in $rows) {
-        # Get header (th) and data (td) elements
-        $headers = $row.getElementsByTagName("th")
-        $cells = $row.getElementsByTagName("td")
+    # Find the header row and get the index of "Risk Level"
+    $headerRow = $table.getElementsByTagName("tr") | Select-Object -First 1
+    $headers = $headerRow.getElementsByTagName("th")
 
-        # Check if the row has a "RISK LEVEL" header
-        foreach ($header in $headers) {
-            if ($header.innerText -eq "RISK LEVEL") {
-                # Debug: Print header and data found in this row
-                Write-Host "Found header 'RISK LEVEL'. Checking corresponding data:"
-                foreach ($cell in $cells) {
-                    Write-Host "Cell value: '$($cell.innerText.Trim())'"
-                    
-                    # Match "None", "LOW_RISK", "MEDIUM_RISK", "HIGH_RISK"
-                    if ($cell.innerText -match 'None|LOW_RISK|MEDIUM_RISK|HIGH_RISK') {
-                        # Add the matched risk level to the array
-                        $riskLevels += $cell.innerText.Trim()
-                    }
+    foreach ($header in $headers) {
+        if ($header.innerText -eq "Risk Level") {
+            $riskLevelIndex = [Array]::IndexOf($headers, $header)
+            break
+        }
+    }
+
+    # If the Risk Level header was found
+    if ($riskLevelIndex -ne -1) {
+        # Iterate through the data rows
+        $dataRows = $table.getElementsByTagName("tr") | Select-Object -Skip 1  # Skip the header row
+
+        foreach ($row in $dataRows) {
+            $cells = $row.getElementsByTagName("td")
+
+            # Check if the current row has enough cells
+            if ($cells.length -gt $riskLevelIndex) {
+                $cellValue = $cells[$riskLevelIndex].innerText.Trim()
+                
+                # Debug: Print the cell value found
+                Write-Host "Cell value: '$cellValue'"
+                
+                # Match "None", "LOW_RISK", "MEDIUM_RISK", "HIGH_RISK"
+                if ($cellValue -match 'None|LOW_RISK|MEDIUM_RISK|HIGH_RISK') {
+                    # Add the matched risk level to the array
+                    $riskLevels += $cellValue
                 }
             }
         }
@@ -47,22 +59,3 @@ function Get-RiskLevels {
 
     return $riskLevels
 }
-
-<#  Example usage
-$htmlObject = @"
-<html>
-    <body>
-        <table>
-            <tr><th>RISK LEVEL</th><td>LOW_RISK</td></tr>
-            <tr><th>RISK LEVEL</th><td>MEDIUM_RISK</td></tr>
-            <tr><th>RISK LEVEL</th><td>HIGH_RISK</td></tr>
-            <tr><th>RISK LEVEL</th><td>None</td></tr>
-        </table>
-    </body>
-</html>
-"@
-
-$riskLevels = Get-RiskLevels -HtmlContent $htmlObject
-$riskLevels
-
-#>
