@@ -4,26 +4,22 @@ function Get-RiskLevels {
         [string]$HtmlContent  # The HTML content as a string
     )
 
-    # Convert the string HTML content to a memory stream so Invoke-WebRequest can process it
-    $htmlBytes = [System.Text.Encoding]::UTF8.GetBytes($HtmlContent)
-    $memoryStream = New-Object System.IO.MemoryStream
-    $memoryStream.Write($htmlBytes, 0, $htmlBytes.Length)
-    $memoryStream.Seek(0, 'Begin')
+    # Create an Internet Explorer COM object
+    $ie = New-Object -ComObject "InternetExplorer.Application"
+    $ie.Visible = $false
 
-    # Create a StreamReader and read the memory stream to text
-    $reader = New-Object System.IO.StreamReader($memoryStream)
-    $htmlString = $reader.ReadToEnd()
+    # Load the HTML content into the IE object
+    $ie.Navigate("about:blank")
+    while ($ie.Busy) { Start-Sleep -Milliseconds 100 }
+    $ie.Document.Write($HtmlContent)
 
-    # Use Invoke-WebRequest to parse the HTML
-    $htmlParsed = Invoke-WebRequest -ContentType "text/html" -Body $htmlString -UseBasicParsing
-
-    # Find the table rows (tr elements)
-    $rows = $htmlParsed.ParsedHtml.getElementsByTagName("tr")
+    # Get all the table rows (tr elements)
+    $rows = $ie.Document.getElementsByTagName("tr")
 
     $riskLevels = @()
 
     foreach ($row in $rows) {
-        # Get all table cells (td elements) in the row
+        # Get all table cells (td elements) in the current row
         $cells = $row.getElementsByTagName("td")
 
         foreach ($cell in $cells) {
@@ -34,6 +30,9 @@ function Get-RiskLevels {
             }
         }
     }
+
+    # Quit the IE COM object
+    $ie.Quit()
 
     return $riskLevels
 }
