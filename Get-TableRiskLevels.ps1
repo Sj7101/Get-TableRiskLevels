@@ -29,8 +29,9 @@ function Get-RiskLevels {
         Write-Host $header.innerText.Trim()
     }
 
+    # Check headers for "Risk Level"
     foreach ($header in $headers) {
-        if ($header.innerText.Trim() -eq "Risk Level") {
+        if ($header.innerText.Trim().ToLower() -eq "risk level") {
             $riskLevelIndex = [Array]::IndexOf($headers, $header)
             break
         }
