@@ -13,20 +13,27 @@ function Get-RiskLevels {
     while ($ie.Busy) { Start-Sleep -Milliseconds 100 }
     $ie.Document.Write($HtmlContent)
 
-    # Get all the table rows (tr elements)
+    # Get all table rows (tr elements)
     $rows = $ie.Document.getElementsByTagName("tr")
 
     $riskLevels = @()
 
+    # Iterate through each row
     foreach ($row in $rows) {
-        # Get all table cells (td elements) in the current row
+        # Get all the header (th) and data (td) elements in the row
+        $headers = $row.getElementsByTagName("th")
         $cells = $row.getElementsByTagName("td")
 
-        foreach ($cell in $cells) {
-            # Check if the cell contains "Low Risk", "Medium Risk", or "High Risk"
-            if ($cell.innerText -match 'Low Risk|Medium Risk|High Risk') {
-                # Add the matched risk level to the array
-                $riskLevels += $cell.innerText.Trim()
+        # Check if the row has a "RISK LEVEL" header
+        foreach ($header in $headers) {
+            if ($header.innerText -eq "RISK LEVEL") {
+                # If a matching header is found, get the corresponding data in <td>
+                foreach ($cell in $cells) {
+                    if ($cell.innerText -match 'Low Risk|Medium Risk|High Risk') {
+                        # Add the matched risk level to the array
+                        $riskLevels += $cell.innerText.Trim()
+                    }
+                }
             }
         }
     }
