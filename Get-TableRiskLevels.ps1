@@ -11,7 +11,7 @@ function Get-RiskLevels {
     # Load the HTML content into the IE object
     $ie.Navigate("about:blank")
     while ($ie.Busy) { Start-Sleep -Milliseconds 100 }
-    $ie.Document.Write($HtmlContent)
+    $ie.Document.Write("<html><body>$HtmlContent</body></html>")  # Wrapping in <html> and <body>
 
     # Get the table element (assuming there's only one table)
     $table = $ie.Document.getElementsByTagName("table") | Select-Object -First 1
@@ -30,9 +30,10 @@ function Get-RiskLevels {
     }
 
     # Check headers for "Risk Level"
-    foreach ($header in $headers) {
-        if ($header.innerText.Trim().ToLower() -eq "risk level") {
-            $riskLevelIndex = [Array]::IndexOf($headers, $header)
+    for ($i = 0; $i -lt $headers.length; $i++) {
+        $headerText = $headers[$i].innerText.Trim().ToLower()
+        if ($headerText -eq "risk level") {
+            $riskLevelIndex = $i
             Write-Host "Risk Level header found at index: $riskLevelIndex"
             break
         }
@@ -70,6 +71,39 @@ function Get-RiskLevels {
     return $riskLevels
 }
 
+# Example usage with corrected HTML structure
+$htmlTable = @"
+<table>
+<tr>
+<th>Friendly Name</th> 
+<th>Issuer</th> 
+<th>Server</th>
+<th>Thumbprint</th>
+<th>Subject Name</th> 
+<th>Issue Date</th>
+<th>Expiration Date</th> 
+<th>Risk Level</th>
+<th>Expires in (Days)</th>
+</tr>
+<tr class="even-table-color">
+<td>QACA92</td>
+<td>CN=Wells Fargo Enterprise certification Authority</td>
+<td>MSGQVZLTM901</td>
+<td>1EFSECA8CFF5FB0F4469686C129D28224314ADB4</td> 
+<td>CN-QACA92, OU-EMC, 0-Wells Fargo, C-US</td> 
+<td>08/12/2024 05:33:01</td>
+<td>08/12/2026 05:33:01</td>
+<td>None</td>
+<td>679</td> 
+</tr> 
+</table>
+"@
+
+$riskLevels = Get-RiskLevels -HtmlContent $htmlTable
+$riskLevels
+
+
+
 <#
 <table>
 <tr>
@@ -95,4 +129,20 @@ function Get-RiskLevels {
 <td>679</td> 
 </tr> 
 </table>
+#>
+
+<#
+
+Header: ' Friendly Name '
+Header: ' Issuer '
+Header: ' Server '
+Header: ' Thumbprint '
+Header: ' Subject Name '
+Header: ' Issue Date '
+Header: ' Expiration Date '
+Header: ' Risk Level '
+Header: ' Expires in (Days) '
+Risk Level header found at index: -1
+Risk Level header not found.
+
 #>
