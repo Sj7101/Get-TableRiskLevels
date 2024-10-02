@@ -23,8 +23,14 @@ function Get-RiskLevels {
     $headerRow = $table.getElementsByTagName("tr") | Select-Object -First 1
     $headers = $headerRow.getElementsByTagName("th")
 
+    # Debug: Print all header values
+    Write-Host "Headers found:"
     foreach ($header in $headers) {
-        if ($header.innerText -eq "Risk Level") {
+        Write-Host $header.innerText.Trim()
+    }
+
+    foreach ($header in $headers) {
+        if ($header.innerText.Trim() -eq "Risk Level") {
             $riskLevelIndex = [Array]::IndexOf($headers, $header)
             break
         }
