@@ -27,8 +27,11 @@ function Get-RiskLevels {
         # Check if the row has a "RISK LEVEL" header
         foreach ($header in $headers) {
             if ($header.innerText -eq "RISK LEVEL") {
-                # If a matching header is found, look for <td> elements in the same row
+                # Debug: Print header and data found in this row
+                Write-Host "Found header 'RISK LEVEL'. Checking corresponding data:"
                 foreach ($cell in $cells) {
+                    Write-Host "Cell value: '$($cell.innerText.Trim())'"
+                    
                     # Match "None", "LOW_RISK", "MEDIUM_RISK", "HIGH_RISK"
                     if ($cell.innerText -match 'None|LOW_RISK|MEDIUM_RISK|HIGH_RISK') {
                         # Add the matched risk level to the array
@@ -45,7 +48,7 @@ function Get-RiskLevels {
     return $riskLevels
 }
 
-<# Example usage
+<#  Example usage
 $htmlObject = @"
 <html>
     <body>
@@ -61,4 +64,5 @@ $htmlObject = @"
 
 $riskLevels = Get-RiskLevels -HtmlContent $htmlObject
 $riskLevels
+
 #>
