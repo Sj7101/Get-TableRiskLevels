@@ -32,19 +32,19 @@ function Get-RiskLevels {
 
     # If the Risk Level header was found
     if ($riskLevelIndex -ne -1) {
-        # Iterate through the data rows
+        # Iterate through the data rows (skip the header row)
         $dataRows = $table.getElementsByTagName("tr") | Select-Object -Skip 1  # Skip the header row
 
         foreach ($row in $dataRows) {
             $cells = $row.getElementsByTagName("td")
 
-            # Check if the current row has enough cells
+            # Ensure there are enough cells in the row
             if ($cells.length -gt $riskLevelIndex) {
                 $cellValue = $cells[$riskLevelIndex].innerText.Trim()
-                
+
                 # Debug: Print the cell value found
                 Write-Host "Cell value: '$cellValue'"
-                
+
                 # Match "None", "LOW_RISK", "MEDIUM_RISK", "HIGH_RISK"
                 if ($cellValue -match 'None|LOW_RISK|MEDIUM_RISK|HIGH_RISK') {
                     # Add the matched risk level to the array
@@ -52,6 +52,8 @@ function Get-RiskLevels {
                 }
             }
         }
+    } else {
+        Write-Host "Risk Level header not found."
     }
 
     # Quit the IE COM object
